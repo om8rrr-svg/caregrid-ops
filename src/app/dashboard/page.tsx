@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { Layout } from '@/components/layout/Layout';
-import { Dashboard } from '@/components/dashboard/Dashboard';
 import { withAuth } from '@/contexts/AuthContext';
 import { runHealth } from '@/lib/api/ops';
 
@@ -22,7 +21,7 @@ function DashboardPage() {
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-bold text-gray-900">Operations Dashboard</h1>
           <button 
-            className="btn bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md disabled:opacity-50 disabled:cursor-not-allowed"
+            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             onClick={onRunHealth} 
             disabled={loading}
           >
@@ -39,7 +38,12 @@ function DashboardPage() {
           </div>
         )}
         
-        <Dashboard />
+        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+          <h2 className="text-lg font-semibold mb-4">Dashboard</h2>
+          <p className="text-gray-600">
+            Use the "Run Health" button above to check the system health status.
+          </p>
+        </div>
       </div>
     </Layout>
   );
