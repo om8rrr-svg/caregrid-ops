@@ -136,7 +136,7 @@ export function Dashboard() {
       <PageHeader
         title="Operations Dashboard"
         description="Monitor system health, performance metrics, and real-time alerts"
-        actions={
+        action={
           <div className="flex items-center space-x-2">
             <Button
               onClick={handleRefresh}
