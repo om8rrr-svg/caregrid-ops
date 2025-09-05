@@ -265,7 +265,7 @@ export function Layout({ children }: LayoutProps) {
 
         {/* Page content */}
         <main className="flex-1">
-          <div className="p-6">
+          <div className="px-6 pt-3 pb-6">
             {children}
           </div>
         </main>
@@ -284,7 +284,7 @@ interface PageHeaderProps {
 
 export function PageHeader({ title, description, action, breadcrumbs }: PageHeaderProps) {
   return (
-    <div className="mb-8">
+    <div className="mb-6">
       {breadcrumbs && (
         <nav className="flex mb-4" aria-label="Breadcrumb">
           <ol className="flex items-center space-x-2">
