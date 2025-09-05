@@ -140,6 +140,46 @@ npm run type-check   # Run TypeScript checks
 | `NEXTAUTH_SECRET` | NextAuth secret key | Required |
 | `NEXTAUTH_URL` | Application URL | `http://localhost:3000` |
 
+## Deployment
+
+### Vercel Deployment
+
+This application is configured for deployment on Vercel with the domain `ops.caregrid.co.uk`.
+
+#### Prerequisites
+1. Vercel account and CLI installed
+2. GitHub repository connected to Vercel
+
+#### Environment Variables
+Configure the following environment variables in Vercel → Project → Settings → Environment Variables:
+
+| Variable | Description | Required Value |
+|----------|-------------|----------------|
+| `JWT_SECRET` | Strong secret key for JWT token signing | `***strong-secret***` |
+| `NEXT_PUBLIC_API_BASE` | Backend API base URL | `https://caregrid-backend.onrender.com` |
+
+#### Security Headers
+The `vercel.json` configuration includes security headers:
+- `X-Frame-Options: DENY` - Prevents clickjacking
+- `X-Content-Type-Options: nosniff` - Prevents MIME type sniffing
+- `Referrer-Policy: strict-origin-when-cross-origin` - Controls referrer information
+
+#### Route Protection
+The following routes are protected by JWT authentication middleware:
+- `/dashboard` - Accessible to admin, manager, viewer roles
+- `/metrics` - Accessible to admin, manager roles  
+- `/incidents` - Accessible to admin, manager roles
+- `/feature-flags` - Accessible to admin, manager roles
+- `/settings` - Accessible to admin role only
+
+Unauthenticated users are automatically redirected to `/auth/login`.
+
+#### Deployment Steps
+1. Connect repository to Vercel
+2. Add custom domain `ops.caregrid.co.uk`
+3. Configure environment variables
+4. Deploy
+
 ## Contributing
 
 1. Fork the repository
