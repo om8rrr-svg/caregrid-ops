@@ -153,22 +153,26 @@ class ApiClient {
     config: AxiosRequestConfig,
     serviceName: string = 'default'
   ): Promise<ApiResponse<T>> {
+    // Create AbortController for 30s timeout
+    const abortController = new AbortController();
+    const timeoutId = setTimeout(() => abortController.abort(), API_CONFIG.DEFAULT_TIMEOUT);
+    
     try {
+      const requestConfig = {
+        ...config,
+        signal: abortController.signal,
+      };
+
       let response;
       
-      if (this.isProduction) {
-        // Use circuit breaker and request queue in production
-        const circuitBreaker = circuitBreakerManager.getBreaker(serviceName);
-        const requestQueue = requestQueueManager.getQueue(serviceName);
-        
-        response = await requestQueue.enqueue(
-          () => circuitBreaker.execute(() => this.withRetry(() => client.request<T>(config))),
-          { priority: 'medium' }
-        );
-      } else {
-        // Direct request in development
-        response = await this.withRetry(() => client.request<T>(config));
-      }
+      // Always use circuit breaker and request queue for hardening
+      const circuitBreaker = circuitBreakerManager.getBreaker(serviceName);
+      const requestQueue = requestQueueManager.getQueue(serviceName);
+      
+      response = await requestQueue.enqueue(
+        () => circuitBreaker.execute(() => this.withRetry(() => client.request<T>(requestConfig))),
+        { priority: 'medium' }
+      );
       
       return {
         success: true,
@@ -177,11 +181,22 @@ class ApiClient {
     } catch (error: any) {
       console.error('API Request Error:', error);
       
+      // Handle AbortController timeout
+      if (error.name === 'AbortError') {
+        return {
+          success: false,
+          error: 'Request timeout after 30 seconds',
+          data: undefined,
+        };
+      }
+      
       return {
         success: false,
         error: error.response?.data?.message || error.message || 'An error occurred',
         data: undefined,
       };
+    } finally {
+      clearTimeout(timeoutId);
     }
   }
 
@@ -302,89 +317,129 @@ class ApiClient {
     requestQueueManager.clearAll();
   }
 
+  // Helper method for internal API calls (like auth endpoints) with hardening
+  private async internalFetch<T>(
+    url: string,
+    options: RequestInit = {},
+    serviceName: string = 'internal-api'
+  ): Promise<ApiResponse<T>> {
+    // Create AbortController for 30s timeout
+    const abortController = new AbortController();
+    const timeoutId = setTimeout(() => abortController.abort(), API_CONFIG.DEFAULT_TIMEOUT);
+    
+    try {
+      const fetchOptions = {
+        ...options,
+        signal: abortController.signal,
+      };
+
+      let response;
+      
+      // Always use circuit breaker and request queue for hardening
+      const circuitBreaker = circuitBreakerManager.getBreaker(serviceName);
+      const requestQueue = requestQueueManager.getQueue(serviceName);
+      
+      response = await requestQueue.enqueue(
+        () => circuitBreaker.execute(() => this.withRetry(() => fetch(url, fetchOptions))),
+        { priority: 'high' } // Auth calls get high priority
+      );
+      
+      const data = await response.json();
+      
+      if (response.ok) {
+        return {
+          success: true,
+          data: data.data || data,
+        };
+      } else {
+        return {
+          success: false,
+          error: data.error || 'Request failed',
+          data: undefined,
+        };
+      }
+    } catch (error: any) {
+      console.error('Internal API Request Error:', error);
+      
+      // Handle AbortController timeout
+      if (error.name === 'AbortError') {
+        return {
+          success: false,
+          error: 'Request timeout after 30 seconds',
+          data: undefined,
+        };
+      }
+      
+      return {
+        success: false,
+        error: error.message || 'Network error',
+        data: undefined,
+      };
+    } finally {
+      clearTimeout(timeoutId);
+    }
+  }
+
   // Authentication methods (using local API routes)
   async login(email: string, password: string): Promise<ApiResponse<{ user: any; token: string; refreshToken: string }>> {
-    try {
-      const response = await fetch('/api/auth/login', {
+    const result = await this.internalFetch<{ user: any; token: string; refreshToken: string }>(
+      '/api/auth/login',
+      {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ email, password }),
-      });
+      },
+      'auth-api'
+    );
 
-      const data = await response.json();
-
-      if (data.success && data.data) {
-        this.setAuthToken(data.data.token);
-        this.setRefreshToken(data.data.refreshToken);
-        return {
-          success: true,
-          data: data.data,
-        };
-      } else {
-        return {
-          success: false,
-          error: data.error || 'Login failed',
-        };
-      }
-    } catch (error: any) {
+    if (result.success && result.data) {
+      this.setAuthToken(result.data.token);
+      this.setRefreshToken(result.data.refreshToken);
+      return {
+        success: true,
+        data: result.data,
+      };
+    } else {
       return {
         success: false,
-        error: error.message || 'Network error',
+        error: result.error || 'Login failed',
       };
     }
   }
 
   async logout(): Promise<ApiResponse<void>> {
-    try {
-      const response = await fetch('/api/auth/logout', {
+    const result = await this.internalFetch<void>(
+      '/api/auth/logout',
+      {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-      });
+      },
+      'auth-api'
+    );
 
-      const data = await response.json();
-      this.clearAuth();
-
-      return {
-        success: data.success,
-        error: data.error,
-      };
-    } catch (error: any) {
-      this.clearAuth();
-      return {
-        success: false,
-        error: error.message || 'Network error',
-      };
-    }
+    this.clearAuth();
+    return result;
   }
 
   async getCurrentUser(): Promise<ApiResponse<any>> {
-    try {
-      const token = this.getAuthToken();
-      const response = await fetch('/api/auth/profile', {
+    const token = this.getAuthToken();
+    const result = await this.internalFetch<any>(
+      '/api/auth/profile',
+      {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
           ...(token && { 'Authorization': `Bearer ${token}` }),
         },
-      });
+      },
+      'auth-api'
+    );
 
-      const data = await response.json();
-
-      return {
-        success: data.success,
-        data: data.data,
-        error: data.error,
-      };
-    } catch (error: any) {
-      return {
-        success: false,
-        error: error.message || 'Network error',
-      };
-    }
+    return result;
   }
 
   // Update configuration (useful for environment switching)

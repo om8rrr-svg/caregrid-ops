@@ -28,6 +28,7 @@ import type { Alert, AlertSeverity } from '@/types';
 import { MetricsDashboard } from './MetricsDashboard';
 import { RealTimeAlerts } from './RealTimeAlerts';
 import { DashboardGrid, GridItem, WidgetSizes, useResponsive } from './ResponsiveGrid';
+import { runSynthetic } from '@/lib/api/ops';
 
 // Health status type
 type HealthStatus = 'healthy' | 'degraded' | 'unhealthy';
@@ -106,6 +107,8 @@ export function Dashboard() {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [lastUpdated, setLastUpdated] = useState(new Date());
   const [activeTab, setActiveTab] = useState<'overview' | 'metrics' | 'alerts'>('overview');
+  const [loading, setLoading] = useState(false);
+  const [synthetic, setSynthetic] = useState<unknown>(null);
   const { isMobile, isTablet } = useResponsive();
 
   const handleRefresh = async () => {
@@ -136,7 +139,7 @@ export function Dashboard() {
       <PageHeader
         title="Operations Dashboard"
         description="Monitor system health, performance metrics, and real-time alerts"
-        actions={
+        action={
           <div className="flex items-center space-x-2">
             <Button
               onClick={handleRefresh}
@@ -160,7 +163,7 @@ export function Dashboard() {
           ].map(({ id, label, icon: Icon }) => (
             <button
               key={id}
-              onClick={() => setActiveTab(id as any)}
+              onClick={() => setActiveTab(id as 'overview' | 'metrics' | 'alerts')}
               className={cn(
                 'flex items-center space-x-2 py-2 px-1 border-b-2 font-medium text-sm',
                 activeTab === id
@@ -346,8 +349,39 @@ export function Dashboard() {
                   <span>System Config</span>
                 </Button>
               </div>
+              <div className="mt-4">
+                <button 
+                  className="btn" 
+                  onClick={async () => {
+                    setLoading(true);
+                    try {
+                      setSynthetic(await runSynthetic());
+                    } finally {
+                      setLoading(false);
+                    }
+                  }} 
+                  disabled={loading}
+                >
+                  Run Synthetic
+                </button>
+              </div>
             </CardContent>
           </Card>
+
+          {/* Synthetic Test Results */}
+          {synthetic && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <Activity className="w-5 h-5" />
+                  <span>Synthetic Test Results</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <pre className="bg-gray-900 text-gray-100 p-4 rounded">{JSON.stringify(synthetic, null, 2)}</pre>
+              </CardContent>
+            </Card>
+          )}
         </div>
       )}
 

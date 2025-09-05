@@ -270,28 +270,41 @@ export class ProductionConfigManager {
         return;
       }
 
-      const response = await fetch(configEndpoint, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        cache: 'no-cache',
-      });
+      // Use hardened fetch with 30s timeout and AbortController
+      const abortController = new AbortController();
+      const timeoutId = setTimeout(() => abortController.abort(), 30000);
 
-      if (!response.ok) {
-        throw new Error(`Failed to fetch remote config: ${response.status}`);
+      try {
+        const response = await fetch(configEndpoint, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          cache: 'no-cache',
+          signal: abortController.signal,
+        });
+
+        if (!response.ok) {
+          throw new Error(`Failed to fetch remote config: ${response.status}`);
+        }
+
+        const remoteConfig = await response.json();
+        this.remoteConfigCache = remoteConfig;
+        this.lastRemoteConfigFetch = now;
+        
+        // Merge remote config with current config
+        this.updateConfig(remoteConfig);
+        
+        console.info('Remote configuration loaded successfully');
+      } finally {
+        clearTimeout(timeoutId);
       }
-
-      const remoteConfig = await response.json();
-      this.remoteConfigCache = remoteConfig;
-      this.lastRemoteConfigFetch = now;
-      
-      // Merge remote config with current config
-      this.updateConfig(remoteConfig);
-      
-      console.info('Remote configuration loaded successfully');
     } catch (error) {
-      console.warn('Failed to load remote configuration:', error);
+      if (error instanceof Error && error.name === 'AbortError') {
+        console.warn('Remote configuration fetch timeout after 30 seconds');
+      } else {
+        console.warn('Failed to load remote configuration:', error);
+      }
     }
   }
 
