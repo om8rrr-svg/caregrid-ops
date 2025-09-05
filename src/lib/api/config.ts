@@ -8,7 +8,7 @@ export const API_CONFIG = {
   OPS_API_URL: process.env.NEXT_PUBLIC_OPS_API_URL || 'http://localhost:3001',
   
   // API Timeouts
-  DEFAULT_TIMEOUT: 10000, // 10 seconds
+  DEFAULT_TIMEOUT: 30000, // 30 seconds
   HEALTH_CHECK_TIMEOUT: 5000, // 5 seconds
   
   // Retry Configuration

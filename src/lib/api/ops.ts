@@ -1,5 +1,15 @@
 // Operations API functions
 
+export async function runHealth() {
+  const res = await fetch('/api/ops/health', { method: 'GET', cache: 'no-store' });
+  return await res.json();
+}
+
+export async function runSynthetic() {
+  const res = await fetch('/api/ops/synthetic', { method: 'GET', cache: 'no-store' });
+  return await res.json();
+}
+
 export async function toggleMaintenance(enabled: boolean, message?: string) {
   const res = await fetch('/api/ops/maintenance', {
     method: 'POST',

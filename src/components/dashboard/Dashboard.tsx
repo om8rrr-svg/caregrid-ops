@@ -29,6 +29,7 @@ import type { Alert, AlertSeverity } from '@/types';
 import { MetricsDashboard } from './MetricsDashboard';
 import { RealTimeAlerts } from './RealTimeAlerts';
 import { DashboardGrid, GridItem, WidgetSizes, useResponsive } from './ResponsiveGrid';
+import { runSynthetic } from '@/lib/api/ops';
 
 // Health status type
 type HealthStatus = 'healthy' | 'degraded' | 'unhealthy';
@@ -108,6 +109,8 @@ export function Dashboard() {
   const [lastUpdated, setLastUpdated] = useState(new Date());
   const [activeTab, setActiveTab] = useState<'overview' | 'metrics' | 'alerts'>('overview');
   const [maint, setMaint] = useState<{ enabled: boolean; message: string; updatedAt: string } | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [synthetic, setSynthetic] = useState<any>(null);
   const { isMobile, isTablet } = useResponsive();
 
   // Load maintenance status on component mount
@@ -188,7 +191,7 @@ export function Dashboard() {
           ].map(({ id, label, icon: Icon }) => (
             <button
               key={id}
-              onClick={() => setActiveTab(id as any)}
+              onClick={() => setActiveTab(id as 'overview' | 'metrics' | 'alerts')}
               className={cn(
                 'flex items-center space-x-2 py-2 px-1 border-b-2 font-medium text-sm',
                 activeTab === id
@@ -216,41 +219,47 @@ export function Dashboard() {
           
           {/* System Overview */}
           <DashboardGrid>
-            {/* Temporarily commenting out StatCards due to icon prop issue
             <GridItem {...WidgetSizes.small}>
-              <StatCard
-                title="System Uptime"
-                value={`${mockSystemMetrics.uptime}%`}
-                icon={<CheckCircle className="h-6 w-6 text-green-500" />}
-                trend={{ value: 0.02, isPositive: true }}
-              />
+              <Card>
+                <CardHeader>
+                  <CardTitle>System Uptime</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{mockSystemMetrics.uptime}%</div>
+                </CardContent>
+              </Card>
             </GridItem>
             <GridItem {...WidgetSizes.small}>
-              <StatCard
-                title="Response Time"
-                value={`${mockSystemMetrics.responseTime}ms`}
-                icon={<Clock className="h-6 w-6 text-blue-500" />}
-                trend={{ value: 12, isPositive: false }}
-              />
+              <Card>
+                <CardHeader>
+                  <CardTitle>Response Time</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{mockSystemMetrics.responseTime}ms</div>
+                </CardContent>
+              </Card>
             </GridItem>
             <GridItem {...WidgetSizes.small}>
-              <StatCard
-                title="Throughput"
-                value={formatNumber(mockSystemMetrics.throughput)}
-                subtitle="requests/min"
-                icon={<TrendingUp className="h-6 w-6 text-purple-500" />}
-                trend={{ value: 8.5, isPositive: true }}
-              />
+              <Card>
+                <CardHeader>
+                  <CardTitle>Throughput</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{formatNumber(mockSystemMetrics.throughput)}</div>
+                  <div className="text-sm text-gray-500">requests/min</div>
+                </CardContent>
+              </Card>
             </GridItem>
             <GridItem {...WidgetSizes.small}>
-              <StatCard
-                title="Error Rate"
-                value={`${mockSystemMetrics.errorRate}%`}
-                icon={<AlertTriangle className="h-6 w-6 text-red-500" />}
-                trend={{ value: 0.01, isPositive: false }}
-              />
+              <Card>
+                <CardHeader>
+                  <CardTitle>Error Rate</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{mockSystemMetrics.errorRate}%</div>
+                </CardContent>
+              </Card>
             </GridItem>
-            */}
           </DashboardGrid>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -384,8 +393,39 @@ export function Dashboard() {
                   <span>System Config</span>
                 </Button>
               </div>
+              <div className="mt-4">
+                <button 
+                  className="btn" 
+                  onClick={async () => {
+                    setLoading(true);
+                    try {
+                      setSynthetic(await runSynthetic());
+                    } finally {
+                      setLoading(false);
+                    }
+                  }} 
+                  disabled={loading}
+                >
+                  Run Synthetic
+                </button>
+              </div>
             </CardContent>
           </Card>
+
+          {/* Synthetic Test Results */}
+          {synthetic && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <Activity className="w-5 h-5" />
+                  <span>Synthetic Test Results</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <pre className="bg-gray-900 text-gray-100 p-4 rounded">{synthetic ? JSON.stringify(synthetic, null, 2) : ''}</pre>
+              </CardContent>
+            </Card>
+          )}
         </div>
       )}
 
