@@ -26,3 +26,35 @@ export async function getMaintenanceStatus() {
   });
   return await res.json();
 }
+
+// Alert API functions
+export async function getAlerts(filters?: { status?: string; severity?: string }) {
+  const params = new URLSearchParams();
+  if (filters?.status) params.append('status', filters.status);
+  if (filters?.severity) params.append('severity', filters.severity);
+  
+  const url = `/api/ops/alerts${params.toString() ? `?${params.toString()}` : ''}`;
+  const res = await fetch(url, {
+    method: 'GET',
+    headers: { 'Content-Type': 'application/json' },
+    cache: 'no-store'
+  });
+  return await res.json();
+}
+
+export async function createAlert(alert: { title: string; description: string; severity: string; tags?: string[] }) {
+  const res = await fetch('/api/ops/alerts', {
+    method: 'POST',
+    body: JSON.stringify(alert),
+    headers: { 'Content-Type': 'application/json' },
+  });
+  return await res.json();
+}
+
+export async function acknowledgeAlert(alertId: string) {
+  const res = await fetch(`/api/ops/alerts/${alertId}/acknowledge`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+  });
+  return await res.json();
+}
