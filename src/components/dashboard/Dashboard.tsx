@@ -28,6 +28,7 @@ import type { Alert, AlertSeverity } from '@/types';
 import { MetricsDashboard } from './MetricsDashboard';
 import { RealTimeAlerts } from './RealTimeAlerts';
 import { DashboardGrid, GridItem, WidgetSizes, useResponsive } from './ResponsiveGrid';
+import { RoleRestricted, RoleButton } from '@/components/auth/RoleRestricted';
 
 // Health status type
 type HealthStatus = 'healthy' | 'degraded' | 'unhealthy';
@@ -184,7 +185,7 @@ export function Dashboard() {
               <StatCard
                 title="System Uptime"
                 value={`${mockSystemMetrics.uptime}%`}
-                icon={<CheckCircle className="h-6 w-6 text-green-500" />}
+                icon={CheckCircle}
                 trend={{ value: 0.02, isPositive: true }}
               />
             </GridItem>
@@ -192,7 +193,7 @@ export function Dashboard() {
               <StatCard
                 title="Response Time"
                 value={`${mockSystemMetrics.responseTime}ms`}
-                icon={<Clock className="h-6 w-6 text-blue-500" />}
+                icon={Clock}
                 trend={{ value: 12, isPositive: false }}
               />
             </GridItem>
@@ -201,7 +202,7 @@ export function Dashboard() {
                 title="Throughput"
                 value={formatNumber(mockSystemMetrics.throughput)}
                 subtitle="requests/min"
-                icon={<TrendingUp className="h-6 w-6 text-purple-500" />}
+                icon={TrendingUp}
                 trend={{ value: 8.5, isPositive: true }}
               />
             </GridItem>
@@ -209,7 +210,7 @@ export function Dashboard() {
               <StatCard
                 title="Error Rate"
                 value={`${mockSystemMetrics.errorRate}%`}
-                icon={<AlertTriangle className="h-6 w-6 text-red-500" />}
+                icon={AlertTriangle}
                 trend={{ value: 0.01, isPositive: false }}
               />
             </GridItem>
@@ -329,22 +330,40 @@ export function Dashboard() {
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <Button variant="outline" className="h-20 flex-col space-y-2">
-                  <Server className="w-6 h-6" />
-                  <span>Health Check</span>
-                </Button>
-                <Button variant="outline" className="h-20 flex-col space-y-2">
-                  <Database className="w-6 h-6" />
-                  <span>Database Status</span>
-                </Button>
+                {/* Health Check - Manager+ */}
+                <RoleRestricted requiredRoles={['admin', 'manager']} disabled showTooltip>
+                  <Button variant="outline" className="h-20 flex-col space-y-2">
+                    <Server className="w-6 h-6" />
+                    <span>Health Check</span>
+                  </Button>
+                </RoleRestricted>
+                
+                {/* Database Status - Manager+ */}
+                <RoleRestricted requiredRoles={['admin', 'manager']} disabled showTooltip>
+                  <Button variant="outline" className="h-20 flex-col space-y-2">
+                    <Database className="w-6 h-6" />
+                    <span>Database Status</span>
+                  </Button>
+                </RoleRestricted>
+                
+                {/* View Metrics - Available to all authenticated users */}
                 <Button variant="outline" className="h-20 flex-col space-y-2">
                   <BarChart3 className="w-6 h-6" />
                   <span>View Metrics</span>
                 </Button>
-                <Button variant="outline" className="h-20 flex-col space-y-2">
-                  <Settings className="w-6 h-6" />
-                  <span>System Config</span>
-                </Button>
+                
+                {/* System Config - Admin only */}
+                <RoleRestricted 
+                  requiredRoles={['admin']} 
+                  disabled 
+                  showTooltip 
+                  tooltipMessage="Requires Admin role"
+                >
+                  <Button variant="outline" className="h-20 flex-col space-y-2">
+                    <Settings className="w-6 h-6" />
+                    <span>System Config</span>
+                  </Button>
+                </RoleRestricted>
               </div>
             </CardContent>
           </Card>
