@@ -7,6 +7,7 @@ const PROTECTED_ROUTES = {
   '/dashboard': ['admin', 'manager', 'viewer'],
   '/incidents': ['admin', 'manager'],
   '/metrics': ['admin', 'manager'],
+  '/feature-flags': ['admin', 'manager'],
   '/settings': ['admin'],
 } as const;
 
