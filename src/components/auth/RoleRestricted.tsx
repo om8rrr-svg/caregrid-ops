@@ -23,7 +23,7 @@ export function RoleRestricted({
   tooltipMessage,
   disabled = false,
 }: RoleRestrictedProps) {
-  const { hasAnyRole, user } = useAuth();
+  const { hasAnyRole, state } = useAuth();
   
   const hasPermission = hasAnyRole(requiredRoles);
   const defaultTooltipMessage = tooltipMessage || `Requires ${requiredRoles.join(' or ')} role`;
@@ -47,11 +47,10 @@ export function RoleRestricted({
           title={showTooltip ? defaultTooltipMessage : undefined}
         >
           {React.cloneElement(children as React.ReactElement, {
-            disabled: true,
             onClick: undefined,
             onMouseDown: undefined,
             onKeyDown: undefined,
-          })}
+          } as any)}
         </div>
         {showTooltip && (
           <div className="sr-only">{defaultTooltipMessage}</div>
@@ -104,7 +103,7 @@ export function RoleButton({
  * Component to show role information for debugging
  */
 export function RoleDebugInfo() {
-  const { user } = useAuth();
+  const { state } = useAuth();
   
   if (process.env.NODE_ENV !== 'development') {
     return null;
@@ -112,8 +111,8 @@ export function RoleDebugInfo() {
 
   return (
     <div className="fixed bottom-4 left-4 bg-gray-900 text-white text-xs p-2 rounded shadow-lg z-50">
-      <div>Role: {user?.role || 'None'}</div>
-      <div>User: {user?.email || 'Not logged in'}</div>
+      <div>Role: {state.user?.role || 'None'}</div>
+      <div>User: {state.user?.email || 'Not logged in'}</div>
     </div>
   );
 }

@@ -408,7 +408,6 @@ export function RealTimeAlerts() {
                         <>
                           <RoleButton
                             requiredRoles={['admin', 'manager']}
-                            size="sm"
                             onClick={() => handleAcknowledgeAlert(alert.id)}
                             tooltipMessage="Manager+ role required to acknowledge alerts"
                             className="px-3 py-1 text-sm border border-gray-300 text-gray-700 rounded hover:bg-gray-50 disabled:opacity-50"
@@ -417,7 +416,6 @@ export function RealTimeAlerts() {
                           </RoleButton>
                           <RoleButton
                             requiredRoles={['admin', 'manager']}
-                            size="sm"
                             onClick={() => handleResolveAlert(alert.id)}
                             tooltipMessage="Manager+ role required to resolve alerts"
                             className="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
