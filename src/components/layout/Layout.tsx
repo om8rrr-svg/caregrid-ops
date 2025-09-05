@@ -35,15 +35,9 @@ const navigationItems = [
   },
   {
     name: 'Health Monitoring',
-    href: '/health',
-    icon: Activity,
-    description: 'System health and uptime',
-  },
-  {
-    name: 'Monitoring',
     href: '/monitoring',
     icon: Activity,
-    description: 'API monitoring and circuit breakers',
+    description: 'System health and uptime monitoring',
   },
   {
     name: 'Alerts',
