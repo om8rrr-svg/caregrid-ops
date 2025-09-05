@@ -2,6 +2,8 @@
 
 A modern Next.js 14+ TypeScript operations dashboard for monitoring and managing the CareGrid healthcare platform.
 
+<!-- Deployment trigger: Fixed Vercel build issues -->
+
 ## Features
 
 ### 🚀 Core Functionality
