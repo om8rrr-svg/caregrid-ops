@@ -1,14 +1,15 @@
 'use client';
 
-import { RoleButton } from '@/components/auth/RoleRestricted';
-import { Layout, PageHeader } from '@/components/layout/Layout';
-import { Button } from '@/components/ui/Button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
+import { useState, useEffect } from 'react';
+import { Layout } from '@/components/layout/Layout';
 import { withAuth } from '@/contexts/AuthContext';
-import { acknowledgeAlert, getAlerts } from '@/lib/api/ops';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
+import { Button } from '@/components/ui/Button';
+import { PageHeader } from '@/components/layout/Layout';
+import { AlertTriangle, Clock, User, CheckCircle, Plus, Filter, X, Bell } from 'lucide-react';
+import { getAlerts, createAlert, acknowledgeAlert } from '@/lib/api/ops';
 import type { Alert, AlertSeverity, AlertStatus } from '@/types';
-import { AlertTriangle, Bell, CheckCircle, Clock, Filter, Plus, User, X } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { RoleButton } from '@/components/auth/RoleRestricted';
 
 function AlertsPage() {
   const [alerts, setAlerts] = useState<Alert[]>([]);
@@ -26,14 +27,14 @@ function AlertsPage() {
       setLoading(true);
       setError(null);
       const response = await getAlerts(
-        filters.status !== 'all' || filters.severity !== 'all'
-          ? {
+        filters.status !== 'all' || filters.severity !== 'all' 
+          ? { 
               status: filters.status !== 'all' ? filters.status : undefined,
-              severity: filters.severity !== 'all' ? filters.severity : undefined
+              severity: filters.severity !== 'all' ? filters.severity : undefined 
             }
           : undefined
       );
-
+      
       if (response.success) {
         setAlerts(response.data || []);
       } else {
@@ -260,7 +261,7 @@ function AlertsPage() {
                       </div>
                     )}
                   </div>
-
+                  
                   {alert.status === 'resolved' && alert.resolvedAt && (
                     <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
                       <div className="flex items-center space-x-2 text-green-800">
@@ -296,8 +297,8 @@ function AlertsPage() {
               <Bell className="w-12 h-12 text-gray-400 mx-auto mb-4" />
               <h3 className="text-lg font-medium text-gray-900 mb-2">No alerts found</h3>
               <p className="text-gray-600 mb-4">
-                {filters.status !== 'all' || filters.severity !== 'all'
-                  ? 'No alerts match the current filters.'
+                {filters.status !== 'all' || filters.severity !== 'all' 
+                  ? 'No alerts match the current filters.' 
                   : 'All systems are running smoothly.'
                 }
               </p>

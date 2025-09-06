@@ -1,10 +1,11 @@
 'use client';
 
+import React from 'react';
 import { Layout, PageHeader } from '@/components/layout/Layout';
+import { withAuth } from '@/contexts/AuthContext';
 import ApiMonitoringDashboard from '@/components/monitoring/ApiMonitoringDashboard';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
-import { withAuth } from '@/contexts/AuthContext';
-import { Activity, Database, Server, Shield } from 'lucide-react';
+import { Activity, Server, Database, Shield } from 'lucide-react';
 
 function MonitoringPage() {
   return (

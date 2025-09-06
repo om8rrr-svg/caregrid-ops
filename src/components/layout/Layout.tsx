@@ -23,8 +23,6 @@ import {
   User,
   Bell,
   Search,
-  Building,
-  Key,
 } from 'lucide-react';
 
 // Navigation Items
@@ -67,35 +65,21 @@ const navigationItems = [
     roles: ['admin', 'manager'] as UserRole[],
   },
   {
-     name: 'Business Management',
-     href: '/business-management',
-     icon: Building,
-     description: 'Manage business accounts',
-     roles: ['admin'] as UserRole[],
-   },
-   {
-     name: 'Password Reset',
-     href: '/password-reset',
-     icon: Key,
-     description: 'Reset user passwords',
-     roles: ['admin'] as UserRole[],
-   },
-  {
     name: 'Maintenance',
     href: '/maintenance',
-    icon: Wrench,
-    description: 'Maintenance mode controls',
-    roles: ['admin'] as UserRole[],
-  },
-  {
-    name: 'User Management',
-    href: '/users',
+    name: 'Business Management',
+    href: '/business-management',
     icon: Users,
-    description: 'Manage ops team access',
+    description: 'Manage business accounts',
     roles: ['admin'] as UserRole[],
   },
   {
-    name: 'Settings',
+    name: 'Password Reset',
+    href: '/password-reset',
+    icon: Settings,
+    description: 'Reset user passwords',
+    roles: ['admin'] as UserRole[],
+  },
     href: '/settings',
     icon: Settings,
     description: 'Application configuration',
@@ -275,7 +259,7 @@ export function Layout({ children }: LayoutProps) {
 
         {/* Page content */}
         <main className="flex-1">
-          <div className="px-6 pt-8 pb-6">
+          <div className="px-6 pt-3 pb-6">
             {children}
           </div>
         </main>
@@ -291,7 +275,7 @@ interface PageHeaderProps {
   action?: React.ReactNode;
   breadcrumbs?: { name: string; href?: string }[];
 }
-
+          <div className="px-6 pt-3 pb-6">
 export function PageHeader({ title, description, action, breadcrumbs }: PageHeaderProps) {
   return (
     <div className="mb-6">

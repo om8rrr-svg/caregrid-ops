@@ -1,12 +1,13 @@
 'use client';
 
-import { Layout, PageHeader } from '@/components/layout/Layout';
-import { Button } from '@/components/ui/Button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
+import { Layout } from '@/components/layout/Layout';
 import { withAuth } from '@/contexts/AuthContext';
-import type { AlertSeverity, Incident, IncidentStatus } from '@/types';
-import { AlertTriangle, CheckCircle, Clock, Plus, User } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
+import { Button } from '@/components/ui/Button';
+import { PageHeader } from '@/components/layout/Layout';
+import { AlertTriangle, Clock, User, CheckCircle, Plus } from 'lucide-react';
 import { useState } from 'react';
+import type { Incident, IncidentStatus, AlertSeverity } from '@/types';
 
 // Mock incident data
 const mockIncidents: Incident[] = [
@@ -149,7 +150,7 @@ function IncidentsPage() {
                     <span className="font-medium">{incident.affectedServices.join(', ')}</span>
                   </div>
                 </div>
-
+                
                 {incident.status === 'resolved' && incident.resolvedAt && (
                   <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
                     <div className="flex items-center space-x-2 text-green-800">
