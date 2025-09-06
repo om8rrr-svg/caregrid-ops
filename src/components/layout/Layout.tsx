@@ -23,6 +23,8 @@ import {
   User,
   Bell,
   Search,
+  Building,
+  Key,
 } from 'lucide-react';
 
 // Navigation Items
@@ -64,6 +66,20 @@ const navigationItems = [
     description: 'Feature toggle management',
     roles: ['admin', 'manager'] as UserRole[],
   },
+  {
+     name: 'Business Management',
+     href: '/business-management',
+     icon: Building,
+     description: 'Manage business accounts',
+     roles: ['admin'] as UserRole[],
+   },
+   {
+     name: 'Password Reset',
+     href: '/password-reset',
+     icon: Key,
+     description: 'Reset user passwords',
+     roles: ['admin'] as UserRole[],
+   },
   {
     name: 'Maintenance',
     href: '/maintenance',
