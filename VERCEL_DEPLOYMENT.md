@@ -9,11 +9,13 @@ The login issue on Vercel is likely due to missing environment variables. Follow
 Go to your Vercel dashboard → Project Settings → Environment Variables and add:
 
 #### **CRITICAL - Required for Login to Work:**
+
 ```
 JWT_SECRET=your-super-secret-jwt-key-at-least-32-characters-long
 ```
 
 #### **API Configuration:**
+
 ```
 NEXT_PUBLIC_APP_ENV=production
 NEXT_PUBLIC_CAREGRID_API_URL=https://caregrid-backend-production.onrender.com
@@ -23,6 +25,7 @@ NEXT_PUBLIC_OPS_API_URL=https://caregrid-ops-api.onrender.com
 ### 2. Optional Environment Variables
 
 #### **Email Alerts (SendGrid):**
+
 ```
 SENDGRID_API_KEY=your-sendgrid-api-key
 ALERTS_FROM_EMAIL=ops@caregrid.co.uk
@@ -30,6 +33,7 @@ OPS_ALERT_EMAIL=ops@caregrid.co.uk
 ```
 
 #### **SMS Alerts (Twilio):**
+
 ```
 TWILIO_ACCOUNT_SID=your-twilio-account-sid
 TWILIO_AUTH_TOKEN=your-twilio-auth-token
@@ -38,11 +42,13 @@ OPS_ALERT_PHONE=+1234567890
 ```
 
 #### **Slack Notifications:**
+
 ```
 SLACK_WEBHOOK_URL=https://hooks.slack.com/services/your/webhook/url
 ```
 
 #### **Synthetic Testing:**
+
 ```
 SYNTHETIC_USER_EMAIL=test@caregrid.com
 SYNTHETIC_USER_PASSWORD=testpassword123
@@ -62,6 +68,7 @@ SYNTHETIC_USER_PASSWORD=testpassword123
 ### 4. Redeploy After Adding Variables
 
 After adding the environment variables:
+
 1. Go to **Deployments** tab
 2. Click the **⋯** menu on the latest deployment
 3. Select **Redeploy**
@@ -75,14 +82,17 @@ Push a new commit to trigger automatic redeployment.
 After redeployment, test with these demo credentials:
 
 **Admin User:**
+
 - Email: `admin@caregrid.com`
 - Password: `admin123`
 
 **Manager User:**
+
 - Email: `manager@caregrid.com`
 - Password: `manager123`
 
 **Viewer User:**
+
 - Email: `viewer@caregrid.com`
 - Password: `viewer123`
 
@@ -91,10 +101,12 @@ After redeployment, test with these demo credentials:
 If login still doesn't work:
 
 1. **Check Vercel Function Logs:**
+
    - Go to **Functions** tab in Vercel dashboard
    - Check logs for `/api/auth/login` function
 
 2. **Verify Environment Variables:**
+
    - Ensure `JWT_SECRET` is set and at least 32 characters long
    - Check that all variables are applied to the correct environments
 

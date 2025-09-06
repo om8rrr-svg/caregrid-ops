@@ -275,7 +275,7 @@ export function Layout({ children }: LayoutProps) {
 
         {/* Page content */}
         <main className="flex-1">
-          <div className="px-6 pt-3 pb-6">
+          <div className="px-6 pt-8 pb-6">
             {children}
           </div>
         </main>
